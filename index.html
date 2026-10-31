@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#f9e6bd">
+  <meta name="description" content="Horse Valley — a Roblox-style riding adventure in your browser. Explore a cozy low-poly valley, find twelve golden apples, and customise your horse.">
+  <title>Horse Valley — A Roblox-Style Riding Adventure</title>
+  <link rel="preload" href="./src/assets/fredoka.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./src/assets/nunito.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ffc83d'/%3E%3Cpath d='M32 14c-6 0-11 5-11 11 0 4 2 7 5 9-1 5-4 8-8 10 4 2 9 2 13 0 3 6 9 10 16 10-2-4-3-8-2-12 5-3 8-8 8-14 0-8-7-14-15-14h-6z' fill='%237a4a1e'/%3E%3C/svg%3E">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene" aria-label="Horse Valley 3D game world"></canvas>
+  </div>
+  <div id="vignette" aria-hidden="true"></div>
+
+  <div id="loading" class="overlay">
+    <div class="loading-mark">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8c-7 0-13 6-13 13 0 4 2 7 5 9-1 5-5 9-9 11 5 3 11 3 15 0 3 7 10 11 18 11-2-5-3-9-2-14 6-3 9-9 9-16 0-8-8-14-17-14h-6z" fill="currentColor"/></svg>
+    </div>
+    <p class="loading-title">Horse Valley</p>
+    <div class="loading-bar"><i></i></div>
+    <p class="loading-sub" id="loading-text">Saddling up the valley…</p>
+  </div>
+
+  <!-- Title screen ------------------------------------------------------- -->
+  <div id="start-screen" class="screen">
+    <div class="start-top">
+      <div class="logo-block">
+        <div class="logo-kicker">A Roblox-style riding adventure</div>
+        <h1 class="logo">HORSE<span>VALLEY</span></h1>
+        <p class="tagline">Saddle up, roam the meadow, and round up twelve Golden Apples before the sun dips behind the ridge.</p>
+        <div class="logo-badges">
+          <span class="badge">12 apples</span>
+          <span class="badge">1 cozy valley</span>
+          <span class="badge">∞ trail rides</span>
+        </div>
+      </div>
+      <div class="start-tip">
+        <span class="dot"></span>
+        <span>Best played with sound on</span>
+      </div>
+    </div>
+
+    <div class="start-bottom">
+      <div class="card controls-card">
+        <h3>How to play</h3>
+        <ul class="key-list">
+          <li><span class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span>Ride around</span></li>
+          <li><span class="keys"><kbd>Shift</kbd></span><span>Gallop</span></li>
+          <li><span class="keys"><kbd>Space</kbd></span><span>Jump</span></li>
+          <li><span class="keys"><kbd>E</kbd></span><span>Talk to friends</span></li>
+          <li><span class="keys"><kbd>Drag</kbd></span><span>Orbit camera</span></li>
+        </ul>
+        <p class="tiny">Touch controls appear automatically on phones and tablets.</p>
+      </div>
+
+      <div class="card customize-card">
+        <div class="card-head">
+          <div>
+            <span class="eyebrow">Create your rider</span>
+            <h2>Your Horse</h2>
+          </div>
+          <span class="name-chip" id="horse-name-chip">Comet</span>
+        </div>
+        <label class="field">
+          <span>Name</span>
+          <input id="horse-name" maxlength="12" value="Comet" spellcheck="false" autocomplete="off" aria-label="Horse name">
+        </label>
+        <div class="swatch-block">
+          <div class="swatch-title"><span>Coat</span><em id="coat-name">Chestnut</em></div>
+          <div class="swatches" id="coat-swatches" role="group" aria-label="Coat colour"></div>
+        </div>
+        <div class="swatch-block">
+          <div class="swatch-title"><span>Mane</span><em id="mane-name">Cocoa</em></div>
+          <div class="swatches" id="mane-swatches" role="group" aria-label="Mane colour"></div>
+        </div>
+        <button id="play-btn" class="btn primary play-btn" type="button">
+          <span>Play</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5z" fill="currentColor"/></svg>
+        </button>
+        <div class="start-meta"><span>Headphones recommended</span><span>•</span><span>Saved for this ride</span></div>
+      </div>
+    </div>
+
+    <p class="start-footer">A fan-made browser homage to blocky horse games. Not affiliated with Roblox.</p>
+  </div>
+
+  <!-- In-game HUD -------------------------------------------------------- -->
+  <div id="hud" class="screen hidden">
+    <div class="hud-top">
+      <div class="player-card glass">
+        <span class="avatar-dot" id="avatar-dot"></span>
+        <span class="player-copy"><strong id="hud-name">Comet</strong><em>Trail Rider</em></span>
+      </div>
+
+      <div class="apple-pill glass" aria-live="polite">
+        <span class="apple-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 5.2c-1-1.4-3.2-1.9-4.7-.8C4.6 6.2 4.4 11 6.7 15c1.3 2.3 3 3.7 4.4 3.8.4 0 .7-.2.9-.6.2.4.5.6.9.6 1.4-.1 3.1-1.5 4.4-3.8 2.3-4 2.1-8.8-.6-10.6-1.5-1.1-3.7-.6-4.7.8z" fill="currentColor"/><path d="M12 5.6c0-1.7.9-3 2.6-3.6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+        </span>
+        <span class="apple-copy"><strong id="apple-count">0</strong><em>/ 12</em></span>
+        <span class="apple-label">Golden Apples</span>
+      </div>
+
+      <div class="hud-actions">
+        <button id="sound-btn" class="icon-btn glass" type="button" aria-label="Mute sound" title="Mute sound">
+          <svg class="icon-on" viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.6v12.8L7.2 14.5H4z" fill="currentColor"/><path d="M15.2 8.6c1.8 1.6 1.8 4.2 0 5.8M17.8 6.3c3 2.7 3 7.7 0 10.4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+          <svg class="icon-off" viewBox="0 0 24 24"><path d="M4 9.5h3.2L12 5.6v12.8L7.2 14.5H4z" fill="currentColor"/><path d="M16 9.5l5 5m0-5l-5 5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+        </button>
+        <button id="pause-btn" class="icon-btn glass" type="button" aria-label="Pause game" title="Pause">
+          <svg viewBox="0 0 24 24"><rect x="6.5" y="5" width="4" height="14" rx="1.6" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.6" fill="currentColor"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="minimap-wrap glass">
+      <canvas id="minimap" width="320" height="320" aria-label="Valley minimap"></canvas>
+      <span class="compass">N</span>
+      <span class="minimap-label">Horse Valley</span>
+    </div>
+
+    <div class="quest glass">
+      <span class="quest-kicker">Quest</span>
+      <strong id="quest-title">June's Harvest</strong>
+      <p id="quest-desc">Find 12 Golden Apples scattered across the valley.</p>
+      <div class="quest-bar"><i id="quest-fill"></i></div>
+    </div>
+
+    <div class="stamina glass">
+      <span class="stamina-label">Gallop</span>
+      <div class="stamina-bar"><i id="stamina-fill"></i></div>
+    </div>
+
+    <div class="controls-hint glass">
+      <span><kbd>WASD</kbd> ride</span>
+      <span><kbd>Shift</kbd> gallop</span>
+      <span><kbd>Space</kbd> jump</span>
+      <span><kbd>E</kbd> talk</span>
+      <span><kbd>Drag</kbd> camera</span>
+    </div>
+
+    <div id="interact-prompt" class="prompt hidden">
+      <kbd>E</kbd>
+      <span id="interact-text">Talk to Farmer June</span>
+    </div>
+
+    <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+  </div>
+
+  <!-- Mobile controls ---------------------------------------------------- -->
+  <div id="mobile-controls" class="mobile-controls hidden">
+    <div id="joystick" aria-label="Movement joystick">
+      <div class="joystick-ring"></div>
+      <div id="stick" class="joystick-stick"></div>
+    </div>
+    <div class="mobile-buttons">
+      <button id="gallop-btn" class="round-btn gallop" type="button" aria-label="Hold to gallop">Gallop</button>
+      <button id="jump-btn" class="round-btn jump" type="button" aria-label="Jump">Jump</button>
+    </div>
+  </div>
+
+  <!-- Dialog ------------------------------------------------------------- -->
+  <div id="dialog" class="screen overlay-screen hidden">
+    <div class="dialog-card">
+      <div class="dialog-avatar" id="dialog-avatar">J</div>
+      <div class="dialog-copy">
+        <span class="eyebrow" id="dialog-role">Orchard Keeper</span>
+        <h3 id="dialog-name">Farmer June</h3>
+        <p id="dialog-text">Well howdy, rider!</p>
+        <div class="dialog-actions">
+          <button id="dialog-next" class="btn primary" type="button">Let's ride!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pause -------------------------------------------------------------- -->
+  <div id="pause-menu" class="screen overlay-screen hidden">
+    <div class="pause-card card">
+      <div class="card-head">
+        <div>
+          <span class="eyebrow">Take a breather</span>
+          <h2>Paused</h2>
+        </div>
+        <span class="name-chip" id="pause-name">Comet</span>
+      </div>
+      <div class="swatch-block">
+        <div class="swatch-title"><span>Coat</span><em id="pause-coat-name">Chestnut</em></div>
+        <div class="swatches" id="pause-coat-swatches" role="group" aria-label="Change coat colour"></div>
+      </div>
+      <div class="swatch-block">
+        <div class="swatch-title"><span>Mane</span><em id="pause-mane-name">Cocoa</em></div>
+        <div class="swatches" id="pause-mane-swatches" role="group" aria-label="Change mane colour"></div>
+      </div>
+      <div class="pause-actions">
+        <button id="resume-btn" class="btn primary" type="button">Resume ride</button>
+        <button id="restart-btn" class="btn" type="button">Restart ride</button>
+        <button id="quit-btn" class="btn ghost" type="button">Back to title</button>
+      </div>
+      <p class="tiny">Your horse keeps this look for the whole ride.</p>
+    </div>
+  </div>
+
+  <!-- Quest complete ----------------------------------------------------- -->
+  <div id="complete" class="screen overlay-screen hidden">
+    <div class="complete-card card">
+      <div class="complete-sunburst" aria-hidden="true"></div>
+      <span class="eyebrow">Quest complete</span>
+      <h2 class="complete-title">Golden Harvest!</h2>
+      <p class="complete-copy">Every last Golden Apple is back in June's basket. She pinned her lucky horseshoe to your saddle — the valley is yours to roam.</p>
+      <div class="complete-stats">
+        <div><strong id="stat-time">0:00</strong><span>Ride time</span></div>
+        <div><strong>12 / 12</strong><span>Apples found</span></div>
+        <div><strong>+12%</strong><span>Gallop speed</span></div>
+      </div>
+      <button id="continue-btn" class="btn primary" type="button">Keep exploring</button>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
