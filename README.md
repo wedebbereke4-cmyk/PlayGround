@@ -1,4 +1,14 @@
-# PlayGround
+# Lush Valley
+
+A small Roblox-style 3D playground built with Three.js. Wander a sunlit valley, cross the old
+wooden bridge, and collect all twelve gold coins.
+
+**Play:** click **Play** on the title screen, then use `WASD` / arrow keys to move, `Shift` to
+sprint, `Space` to jump, and drag the mouse to look around. On a phone or tablet, use the
+on-screen joystick and **Jump** button.
+
+The game is served by Vite on port `3002` (`npm run dev`). Run `npm run build` for a production
+bundle in `dist/`.
 
 <!-- omgithub:readme:start -->
 ## 🚀 Build, play, and remix with OMGithub

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#16281b" />
+    <title>Lush Valley — a Roblox-style playground</title>
+    <meta
+      name="description"
+      content="Wander a sunlit, Roblox-style valley. Cross the old bridge, find all twelve coins, and climb the far hill."
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%238ed94e%22/><text y=%22.9em%22 x=%2250%22 font-size=%2264%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-weight=%22bold%22 fill=%22%231a3a22%22>L</text></svg>" />
+    <script type="module" crossorigin src="./assets/index-sts6G-7X.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Cub25jX2.css">
+  </head>
+  <body>
+    <canvas id="game" aria-label="Lush Valley 3D game"></canvas>
+    <div class="vignette"></div>
+
+    <div class="screen" id="title">
+      <div class="topbar">
+        <div class="brand">
+          <span class="mark">LV</span>
+          <span class="brand-name">LUSH VALLEY</span>
+        </div>
+        <div class="topbar-note">12 coins · one green valley</div>
+      </div>
+
+      <div class="hero">
+        <p class="eyebrow"><span class="dot"></span> A Roblox-style playground</p>
+        <h1>Lush<span class="accent">Valley</span></h1>
+        <p class="lede">
+          Sun on the grass, an old wooden bridge, and twelve gold coins tucked across the
+          hills. Wander as far as you like.
+        </p>
+        <div class="actions">
+          <button id="play" class="play" aria-label="Play Lush Valley">
+            <span class="play-icon"></span>
+            Play
+          </button>
+          <div class="controls">
+            <span class="ctrl"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move</span>
+            <span class="ctrl"><kbd>Shift</kbd> Sprint</span>
+            <span class="ctrl"><kbd>Space</kbd> Jump</span>
+            <span class="ctrl"><kbd>Drag</kbd> Look</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="title-foot">
+        <span>Built with Three.js</span>
+        <span class="sep">·</span>
+        <span>Follow the dirt path to the bridge</span>
+      </div>
+    </div>
+
+    <div id="hud">
+      <div class="hud-top">
+        <div class="card">
+          <div class="who">
+            <span class="avatar-chip">E</span>
+            <span class="who-text"><b>Explorer</b><small>Lush Valley</small></span>
+          </div>
+          <div class="coins" aria-label="Coins collected">
+            <span class="coin-dot"></span>
+            <span id="coinCount">0</span><i>/</i><span id="coinTotal">12</span>
+          </div>
+        </div>
+        <button id="sound" aria-label="Mute sound">🔊</button>
+      </div>
+
+      <div id="hint">
+        <span><kbd>WASD</kbd> move</span>
+        <span><kbd>Shift</kbd> sprint</span>
+        <span><kbd>Space</kbd> jump</span>
+        <span><kbd>Drag</kbd> look</span>
+      </div>
+
+      <div id="toast" role="status" aria-live="polite"></div>
+
+      <div id="complete">
+        <div class="complete-card">
+          <span class="complete-kicker">All twelve found</span>
+          <h2>Valley complete!</h2>
+          <p>Every coin is yours. The valley is still yours to wander.</p>
+          <button id="resume">Keep exploring</button>
+        </div>
+      </div>
+
+      <div id="touch">
+        <div id="stick" aria-label="Movement joystick"><span id="knob"></span></div>
+        <button id="jump" aria-label="Jump">Jump</button>
+      </div>
+    </div>
+
+  </body>
+</html>
